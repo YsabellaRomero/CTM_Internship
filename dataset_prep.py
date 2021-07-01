@@ -15,15 +15,13 @@ class data(Dataset):
   def __getitem__(self,index):
     filename = self.inputs[index]
     inputs = Image.open(filename)
-    #inputs = self.transform(input)
     labels = self.labels[index]
     return inputs, labels
 
   def __len__(self):
     return len(self.inputs)
 
-aug_transforms = transforms.Compose([                                           
-    transforms.ToPILImage(),                                                    #Transformar numa imagem PIL para a podermos ler
+aug_transforms = transforms.Compose([                                                                                              #Transformar numa imagem PIL para a podermos ler
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
     transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                         #Roda a imagem e faz translações de forma aleatório
     transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma alteatória
@@ -39,12 +37,18 @@ val_transforms = transforms.Compose([
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 
-transform_dict = {'train':aug_transforms,'test':val_transforms}
+#transform_dict = {'train':aug_transforms,'test':val_transforms}
 
 path = 'Pickle/data.p'
 
-train_dataset = {x:data(x, 0, path, transform_dict[x]) for x in ['train','test']}
-dataloader = {x:DataLoader(train_dataset[x], batch_size=32, shuffle=True, num_workers=2) for x in ['train','test']}
+#train_dataset = {x:data(x, 0, path, transform_dict[x]) for x in ['train','test']}
+#dataloader = {x:DataLoader(train_dataset[x], batch_size=32, shuffle=True, num_workers=2) for x in ['train','test']}
 
+train_dataset = data('train', 0, path, aug_transforms)
+
+for inputs, labels in train_dataset:
+    print(inputs)
+
+  
 
 
