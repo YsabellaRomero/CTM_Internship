@@ -43,19 +43,8 @@ transform_dict = {'train':aug_transforms,'test':val_transforms}
 
 path = 'Pickle/data.p'
 
-for x in ['train','test']:
-  train_dataset = data(x, 4, path, transform_dict[x])
-  
-for x in ['train','test']:
-  dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-  
-  '''
-  X, Y = train_dataset[0]
-  print('Inputs: ', X.min(), X.max(), X.shape, X.dtype)
-  print(type, np.bincount(train_dataset.Y) / len(train_dataset.Y))
-  plt.imshow(np.transpose((X-X.min()) / (X.max() - X.min()), (1, 2, 0)))
-  plt.show()
-  '''
+train_dataset = {x:data(x, 0, path, transform_dict[x]) for x in ['train','test']}
+dataloader = {x:DataLoader(train_dataset[x], batch_size=32, shuffle=True, num_workers=2) for x in ['train','test']}
 
 
 
