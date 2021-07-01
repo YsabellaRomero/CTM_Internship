@@ -15,6 +15,7 @@ class data(Dataset):
   def __getitem__(self,index):
     filename = self.inputs[index]
     inputs = Image.open(filename)
+    inputs = self.transform(inputs)
     labels = self.labels[index]
     return inputs, labels
 
@@ -23,7 +24,7 @@ class data(Dataset):
 
 aug_transforms = transforms.Compose([                                                                                              #Transformar numa imagem PIL para a podermos ler
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
-    transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                         #Roda a imagem e faz translações de forma aleatório
+    transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                          #Roda a imagem e faz translações de forma aleatório
     transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma alteatória
     transforms.RandomVerticalFlip(),                                            #Inverte a imagem de cima para baixo e vice-versa de forma alteatória
     transforms.ColorJitter(saturation=(0.5, 2.0)),                              #Altera aleatoriamente o brilho, a saturação e outras propriedades da imagem
@@ -32,22 +33,19 @@ aug_transforms = transforms.Compose([                                           
 ])                                                                              #transfer learning, as arquiteturas foram testadas com outro tipos de  
                                                                                 #imagens e elas depois foram normalizadas com estes valores a serem usados
 
-val_transforms = transforms.Compose([
+val_transforms = transforms.Compose([  
+    transforms.Resize((224,224)), 
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 
-#transform_dict = {'train':aug_transforms,'test':val_transforms}
 
 path = 'Pickle/data.p'
-
-#train_dataset = {x:data(x, 0, path, transform_dict[x]) for x in ['train','test']}
-#dataloader = {x:DataLoader(train_dataset[x], batch_size=32, shuffle=True, num_workers=2) for x in ['train','test']}
 
 train_dataset = data('train', 0, path, aug_transforms)
 
 for inputs, labels in train_dataset:
-    print(inputs)
+    print(inputs.shape)
 
   
 
