@@ -1,11 +1,7 @@
 from PIL import Image
-import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, models
-import numpy as np
+from torch.utils.data import Dataset
+from torchvision import transforms
 import pickle
-import matplotlib.pyplot as plt
-
 
 class data(Dataset):
   def __init__(self, fase, fold, path, transform=None):                         #type --> se é treino ou teste
@@ -24,8 +20,8 @@ class data(Dataset):
 
 aug_transforms = transforms.Compose([                                                                                              
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
-    transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                          #Roda a imagem e faz translações de forma aleatório
-    transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma aleatória
+    transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                         #Roda a imagem e faz translações de forma aleatório
+    transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma alteatória
     transforms.RandomVerticalFlip(),                                            #Inverte a imagem de cima para baixo e vice-versa de forma alteatória
     transforms.ColorJitter(saturation=(0.5, 2.0)),                              #Altera aleatoriamente o brilho, a saturação e outras propriedades da imagem
     transforms.ToTensor(),  # vgg normalization                                 #Mandar para tensor
@@ -46,7 +42,6 @@ train_dataset = data('train', 0, path, aug_transforms)
 
 for inputs, labels in train_dataset:
     print(inputs)
-
   
 
 
