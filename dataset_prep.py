@@ -22,7 +22,7 @@ class data(Dataset):
   def __len__(self):
     return len(self.inputs)
 
-aug_transforms = transforms.Compose([                                                                                              #Transformar numa imagem PIL para a podermos ler
+aug_transforms = transforms.Compose([                                                                                              
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
     transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                          #Roda a imagem e faz translações de forma aleatório
     transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma alteatória
@@ -45,7 +45,7 @@ path = 'Pickle/data.p'
 train_dataset = data('train', 0, path, aug_transforms)
 
 for inputs, labels in train_dataset:
-    print(inputs.shape)
+    print(inputs)
 
   
 
