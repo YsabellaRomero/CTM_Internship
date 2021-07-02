@@ -25,7 +25,7 @@ class data(Dataset):
 aug_transforms = transforms.Compose([                                                                                              
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
     transforms.RandomAffine(180, (0, 0.1), (0.9, 1.1)),                          #Roda a imagem e faz translações de forma aleatório
-    transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma alteatória
+    transforms.RandomHorizontalFlip(),                                          #Inverte a imagem da direita para a esquerda e vice-versa de forma aleatória
     transforms.RandomVerticalFlip(),                                            #Inverte a imagem de cima para baixo e vice-versa de forma alteatória
     transforms.ColorJitter(saturation=(0.5, 2.0)),                              #Altera aleatoriamente o brilho, a saturação e outras propriedades da imagem
     transforms.ToTensor(),  # vgg normalization                                 #Mandar para tensor
