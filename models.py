@@ -1,16 +1,22 @@
 import torch.nn as nn
+import torch
 import torch.nn.functional as F
 from torchvision import models
 
 criterion = nn.CrossEntropyLoss()
 
 class Net(nn.Module):
-    def __init__(self, pre_trained, num_outputs):
+    def __init__(self, pretrained, num_outputs):
         super().__init__()
         self.n_labels = num_outputs
-        classifier = getattr(models, pre_trained, 'pretrained attribute not found')             #if 'pretrained' attribute is found, its value will
-        self.classifier = nn.Sequential(                                                        #be printed, otherwise 3rd parameter will be returned
-            nn.Linear(512 * 7 * 7, 512),                                                        #Last dimension from pooling layer is 7x7x512 in VGG16
+        model = models.densenet121(pretrained=True)                                     #Instanciar um modelo pré-treinado baixará seus pesos para um diretório de cache
+        model = nn.Sequential(*list(model.children())[:-1])                             #Novo modelo criado através da lista com todas as camadas (à exceção da última) do modelo pré-treinado                            
+        last_dimension = torch.flatten(model(torch.randn(1, 3, 224, 224))).shape[0]     #Dimensão da última camada do modelo     
+        self.classifier = nn.Sequential(     
+            model, 
+            nn.Flatten(),                                                               #Aplana o tensor 
+            nn.Dropout(0.2),                                                            #Dropout é uma técnica que seleciona 'neurals' aleatoriamente e os ignora
+            nn.Linear(last_dimension, 512),                                                      
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(512,256),
@@ -20,7 +26,7 @@ class Net(nn.Module):
         )
 
     def foward(self, x):
-        return self.classifier(x)
+        return self.model(x)
     
     def loss(self, outputs, labels):
         return criterion(outputs, labels)
