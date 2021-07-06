@@ -34,6 +34,9 @@ class Net(nn.Module):
     def softmax(self, outputs):
         return F.softmax(outputs, dim=1)
         
+    def pred(self, pred):
+        return torch.max(pred,1)
+        
     
 n_labels = 4
 Net(True, n_labels)
