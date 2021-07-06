@@ -1,22 +1,26 @@
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+import torch
 import pickle
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class data(Dataset):
   def __init__(self, fase, fold, path, transform=None):                         #type --> se é treino ou teste
-    self.inputs, self.labels = pickle.load(open(path, 'rb'))[fold][fase]        #transform --> se vamos usar transformações de treino ou teste
-    self.transform = transform                                                  #fold --> faz chamada para um dos folds
+    self.X, self.Y = pickle.load(open(path, 'rb'))[fold][fase]        #transform --> se vamos usar transformações de treino ou teste
+    self.transform = transform;                                                 #fold --> faz chamada para um dos folds
 
   def __getitem__(self,index):
-    filename = self.inputs[index]
-    inputs = Image.open(filename)
-    inputs = self.transform(inputs)
-    labels = self.labels[index]
+    filename = self.X[index]
+    Input = Image.open(filename)
+    inputs = self.transform(Input)
+    labels = self.Y[index]
+    
     return inputs, labels
 
   def __len__(self):
-    return len(self.inputs)
+    return len(self.X)
 
 aug_transforms = transforms.Compose([                                                                                              
     transforms.Resize((224,224)),                                               #Redimensionamento da imagem
@@ -38,10 +42,8 @@ val_transforms = transforms.Compose([
 
 path = 'Pickle/data.p'
 
-train_dataset = data('train', 0, path, aug_transforms)
+#train_dataset = data('train', 4, path, aug_transforms)
 
-for inputs, labels in train_dataset:
-    print(inputs)
+#for inputs, labels in train_dataset:
+#    print(inputs)
   
-
-
