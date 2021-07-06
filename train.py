@@ -62,9 +62,9 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
             
             c_pred=model.pred(outputs)[1]
 
-            avg_acc += metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)               #Pontuação de classificação de precisão
+            avg_acc += metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)               
             avg_loss += loss/len(train_ld)
-            bal_acc += metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)      #Cálculo da precisão balanceada
+            bal_acc += metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)      
        
         dt = time() - tic
         
