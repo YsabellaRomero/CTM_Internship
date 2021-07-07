@@ -82,10 +82,10 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
             tval_bal_acc+=[val_bal_acc]
             tval_loss+=[val_loss]
             
-    np.savez(os.join.path(path,'training.npz'),train_acc=train_acc,train_bal_acc=train_bal_acc,train_loss=train_loss) 
+    np.savez(os.path.join(path,'training.npz'),train_acc=train_acc,train_bal_acc=train_bal_acc,train_loss=train_loss) 
     
     if validloader is not None:       
-        np.savez(os.join.path(path,'validation.npz'),tval_acc=tval_acc,tval_bal_acc=tval_bal_acc,tval_loss=tval_loss)
+        np.savez(os.path.join(path,'validation.npz'),tval_acc=tval_acc,tval_bal_acc=tval_bal_acc,tval_loss=tval_loss)
 
             
 def test(test_ld, val=False):
