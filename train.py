@@ -89,24 +89,26 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
 
             
 def test(test_ld, val=False):
-    model.eval()                                                              #Desativa as camadas Dropout e é equivalente a model.train(False)
-    
-    avg_acc=0;
-    avg_loss=0;
-    bal_acc=0
 
-    for inputs,labels in train_ld:
-        inputs =inputs.to(device)
-        labels = labels.to(device,torch.int64)
+    with torch.no_grad():                                                         #Bloqueia os gradientes, assim poupa memoria
+        model.eval()                                                              #Desativa as camadas Dropout e é equivalente a model.train(False)
         
-        outputs=model(inputs)
-        loss=model.loss(outputs,labels) 
-        
-        c_pred=model.pred(outputs)[1]
-        
-        avg_acc+=metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
-        avg_loss+=loss/len(test_ld)
-        bal_acc+=metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
+        avg_acc=0;
+        avg_loss=0;
+        bal_acc=0
+
+        for inputs,labels in train_ld:
+            inputs =inputs.to(device)
+            labels = labels.to(device,torch.int64)
+            
+            outputs=model(inputs)
+            loss=model.loss(outputs,labels) 
+            
+            c_pred=model.pred(outputs)[1]                                          #Devolve um array de 2 colunas, uma com os valores máximos e outra com os índices dos valores
+                                                                                   #[1] serve para que devolva os índices 
+            avg_acc+=metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
+            avg_loss+=loss/len(test_ld)
+            bal_acc+=metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
 
     print('TESTING RESULTS:\nACCURACY: %.2f BAL_ACCURACY: %.2f LOSS: %.3f'%(avg_acc,bal_acc,avg_loss)) 
           
