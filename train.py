@@ -8,7 +8,7 @@ import argparse
 import numpy as np
 import os
 
-path = 'Pickle/data.p'
+path_init = 'Pickle/data.p'
 
 #Usa GPU se estiver disponível
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -23,10 +23,10 @@ parser.add_argument('--lr', type=float, default=1e-4)
 
 args = parser.parse_args()
 
-train_dataset = dataset_prep.data('train', args.fold, path, dataset_prep.aug_transforms)
+train_dataset = dataset_prep.data('train', args.fold, path_init, dataset_prep.aug_transforms)
 train_ld = DataLoader(train_dataset, args.batchsize, shuffle=True, num_workers=2)
 
-test_dataset = dataset_prep.data('test', args.fold, path, dataset_prep.val_transforms)
+test_dataset = dataset_prep.data('test', args.fold, path_init, dataset_prep.val_transforms)
 test_ld = DataLoader(test_dataset, args.batchsize, shuffle=False, num_workers=2)
 
 def train(train_dataset, val, validloader=None, epochs=args.epochs):
@@ -73,7 +73,16 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
         
         train_acc += [avg_acc]
         train_bal_acc += [bal_acc]
-        train_loss += [avg_loss]
+        train_loss += [avg_loss.cpu()]
+
+        del avg_loss
+        del avg_acc
+        del bal_acc
+        del inputs
+        del labels
+
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats(device)
         
         if validloader is not None:
             model.eval()
