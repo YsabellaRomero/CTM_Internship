@@ -134,15 +134,3 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(),args.lr)
     path = 'Resultados'
     train(train_ld,path,test_ld)
-    
-
-        
-    
-    
-        
-    
-    
-        
-        
-        
-
