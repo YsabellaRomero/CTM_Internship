@@ -12,7 +12,6 @@ path_init = 'Pickle/data.p'
 
 #Usa GPU se estiver disponível
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(device)
 
 parser = argparse.ArgumentParser()                                            #Criação de um objeto ArgumentParsec
 
