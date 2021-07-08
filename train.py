@@ -4,7 +4,6 @@ from time import time
 from torch import optim
 from sklearn import metrics
 import torch
-import argparse 
 import numpy as np
 import os
 
@@ -13,26 +12,12 @@ path_init = 'Pickle/data.p'
 #Usa GPU se estiver disponível
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-parser = argparse.ArgumentParser()                                            #Criação de um objeto ArgumentParsec
+train_dataset = dataset_prep.data('train', 4, path_init, dataset_prep.aug_transforms)
+test_dataset = dataset_prep.data('test', 4, path_init, dataset_prep.val_transforms)
 
-parser.add_argument('--method', default='Net')
-parser.add_argument('--architecture', default='vgg16') 
-parser.add_argument('--fold', type=int, default=4)
-parser.add_argument('--epochs', type=int, default=2)
-parser.add_argument('--batchsize', type=int, default=16)
-parser.add_argument('--dropout', type=int, default=0.2)
-parser.add_argument('--lr', type=float, default=1e-6)
-parser.add_argument("-f", "--file", required=False) 
+epochs = 10;
 
-args = parser.parse_args()
-
-train_dataset = dataset_prep.data('train', args.fold, path_init, dataset_prep.aug_transforms)
-train_ld = DataLoader(train_dataset, args.batchsize, shuffle=True, num_workers=2)
-
-test_dataset = dataset_prep.data('test', args.fold, path_init, dataset_prep.val_transforms)
-test_ld = DataLoader(test_dataset, args.batchsize, shuffle=False, num_workers=2)
-
-def train(train_dataset, val, validloader=None, epochs=args.epochs):
+def train(train_dataset, val, path, validloader=None):
     
     train_acc=[]
     train_bal_acc=[]
@@ -65,9 +50,9 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
             
             c_pred=model.pred(outputs)[1]
 
-            avg_acc += metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)               
+            avg_acc += metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)               #Pontuação de classificação de precisão
             avg_loss += loss/len(train_ld)
-            bal_acc += metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)      
+            bal_acc += metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(train_ld)      #Cálculo da precisão balanceada
        
         dt = time() - tic
         
@@ -76,16 +61,7 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
         
         train_acc += [avg_acc]
         train_bal_acc += [bal_acc]
-        train_loss += [avg_loss.cpu()]
-
-        del avg_loss
-        del avg_acc
-        del bal_acc
-        del inputs
-        del labels
-
-        torch.cuda.empty_cache()
-        torch.cuda.reset_peak_memory_stats(device)
+        train_loss += [avg_loss]
         
         if validloader is not None:
             model.eval()
@@ -101,35 +77,43 @@ def train(train_dataset, val, validloader=None, epochs=args.epochs):
 
             
 def test(test_ld, val=False):
+    model.eval()                                                              #Desativa as camadas Dropout e é equivalente a model.train(False)
+    
+    avg_acc=0;
+    avg_loss=0;
+    bal_acc=0
 
-    with torch.no_grad():                                                         #Bloqueia os gradientes, assim poupa memoria
-        model.eval()                                                              #Desativa as camadas Dropout e é equivalente a model.train(False)
+    for inputs,labels in train_ld:
+        inputs =inputs.to(device)
+        labels = labels.to(device,torch.int64)
         
-        avg_acc=0;
-        avg_loss=0;
-        bal_acc=0
-
-        for inputs,labels in train_ld:
-            inputs =inputs.to(device)
-            labels = labels.to(device,torch.int64)
-            
-            outputs=model(inputs)
-            loss=model.loss(outputs,labels) 
-            
-            c_pred=model.pred(outputs)[1]                                          #Devolve um array de 2 colunas, uma com os valores máximos e outra com os índices dos valores
-                                                                                   #[1] serve para que devolva os índices 
-            avg_acc+=metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
-            avg_loss+=loss/len(test_ld)
-            bal_acc+=metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
+        outputs=model(inputs)
+        loss=model.loss(outputs,labels) 
+        
+        c_pred=model.pred(outputs)[1]
+        
+        avg_acc+=metrics.accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
+        avg_loss+=loss/len(test_ld)
+        bal_acc+=metrics.balanced_accuracy_score(labels.cpu(),c_pred.cpu())/len(test_ld)
 
     print('TESTING RESULTS:\nACCURACY: %.2f BAL_ACCURACY: %.2f LOSS: %.3f'%(avg_acc,bal_acc,avg_loss)) 
           
     if val:
         return avg_acc,avg_loss,bal_acc         
         
-if __name__ == '__main__':         
-    model = models.Net(args.model)
-    model = model.to(device)                                                    
-    optimizer = optim.Adam(model.parameters(),args.lr)
-    path = 'Resultados'
-    train(train_ld,path,test_ld)
+if __name__ == '__main__':     
+    
+    batch_size = [8, 16, 32, 64];
+    model_n = ['vgg16', 'googlenet'];
+    lr = [1e-4, 1e-5, 1e-6];
+    
+    for i in model_n:
+        for j in lr:
+            for k in batch_size:
+                train_ld = DataLoader(train_dataset, k, shuffle=True, num_workers=2)
+                test_ld = DataLoader(test_dataset, k, shuffle=False, num_workers=2)
+                model = models.Net(i)
+                model = model.to(device)                                                    
+                optimizer = optim.Adam(model.parameters(),j)
+                path = 'Resultados\model_'+str(i)+'_lr_'+str(j)+'_batchsize_'+str(k)
+                train(train_ld,path,test_ld,path)
