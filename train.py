@@ -17,7 +17,7 @@ test_dataset = dataset_prep.data('test', 4, path_init, dataset_prep.val_transfor
 
 epochs = 10;
 
-def train(train_dataset, val, path, validloader=None):
+def train(train_dataset, val, path, model, lr, batch_size validloader=None):
     
     train_acc=[]
     train_bal_acc=[]
@@ -70,10 +70,10 @@ def train(train_dataset, val, path, validloader=None):
             tval_bal_acc+=[val_bal_acc]
             tval_loss+=[val_loss]
             
-    np.savez(os.path.join(path,'training.npz'),train_acc=train_acc,train_bal_acc=train_bal_acc,train_loss=train_loss) 
+    np.savez(os.path.join(path,'\model_'+str(model)+'_lr_'+str(lr)+'_batchsize_'+str(batch_size)+'_training.npz'),train_acc=train_acc,train_bal_acc=train_bal_acc,train_loss=train_loss) 
     
     if validloader is not None:       
-        np.savez(os.path.join(path,'validation.npz'),tval_acc=tval_acc,tval_bal_acc=tval_bal_acc,tval_loss=tval_loss)
+        np.savez(os.path.join(path,'\model_'+str(model)+'_lr_'+str(lr)+'_batchsize_'+str(batch_size)+'_validation.npz'),tval_acc=tval_acc,tval_bal_acc=tval_bal_acc,tval_loss=tval_loss)
 
             
 def test(test_ld, val=False):
@@ -115,5 +115,5 @@ if __name__ == '__main__':
                 model = models.Net(i)
                 model = model.to(device)                                                    
                 optimizer = optim.Adam(model.parameters(),j)
-                path = 'Resultados\model_'+str(i)+'_lr_'+str(j)+'_batchsize_'+str(k)
-                train(train_ld,path,test_ld,path)
+                path = 'Resultados'
+                train(train_ld,path,test_ld,path,i,j,k)
