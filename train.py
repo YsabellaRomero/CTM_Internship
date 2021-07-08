@@ -16,11 +16,14 @@ print(device)
 
 parser = argparse.ArgumentParser()                                            #Criação de um objeto ArgumentParsec
 
-parser.add_argument('--model', default='vgg16') 
+parser.add_argument('--method', default='Net')
+parser.add_argument('--architecture', default='vgg16') 
 parser.add_argument('--fold', type=int, default=4)
-parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--batchsize', type=int, default=64)
-parser.add_argument('--lr', type=float, default=1e-4)
+parser.add_argument('--epochs', type=int, default=2)
+parser.add_argument('--batchsize', type=int, default=16)
+parser.add_argument('--dropout', type=int, default=0.2)
+parser.add_argument('--lr', type=float, default=1e-6)
+parser.add_argument("-f", "--file", required=False) 
 
 args = parser.parse_args()
 
