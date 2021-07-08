@@ -12,7 +12,6 @@ def loadImages():
     folder = "dataset"
     inputs = []
     labels = []
-    #classes=['Negative for Intraepithelial malignancy','Low squamous intra-epithelial lesion', 'High squamous intra-epithelial lesion',  'Squamous cell carcinoma']
     i = 0
     
     dirList = os.listdir(folder)
@@ -32,7 +31,7 @@ def loadImages():
             
                 if file.endswith(".jpg"):
                     inputs.append(im_path)                   #guarda caminho no vetor inputs  
-                    labels.append(i)                #diz a label que corresponde à imagem
+                    labels.append(i)                         #diz a label que corresponde à imagem
                 
                 else:
                     continue
