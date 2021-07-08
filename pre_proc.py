@@ -13,7 +13,7 @@ def loadImages():
     inputs = []
     labels = []
     #classes=['Negative for Intraepithelial malignancy','Low squamous intra-epithelial lesion', 'High squamous intra-epithelial lesion',  'Squamous cell carcinoma']
-    i = 1
+    i = 0
     
     dirList = os.listdir(folder)
     
