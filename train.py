@@ -2,10 +2,8 @@ from torch.utils.data import DataLoader
 import dataset_prep, models 
 from time import time
 from torch import optim
-from sklearn import metrics
 import torch
 import numpy as np
-import os
 
 path_init = 'Pickle/data.p'
 
@@ -64,7 +62,7 @@ def train(train_dataset, val, path, validloader=None):
 
 
             
-def test(test_ld, val=False):
+def test(test_ld):
 
     with torch.no_grad():
         
