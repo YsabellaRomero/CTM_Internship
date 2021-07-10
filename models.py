@@ -1,9 +1,23 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
+import argparse 
 from torchvision import models
+from sklearn import metrics
 
 criterion = nn.CrossEntropyLoss()
+
+parser = argparse.ArgumentParser()                                            #Criação de um objeto ArgumentParsec
+
+parser.add_argument('--method', default='Net')
+parser.add_argument('--architecture', choices=['vgg16', 'googlenet'], default='vgg16') 
+parser.add_argument('--fold', type=int, choices=range(5), default=4)
+parser.add_argument('--epochs', type=int, default=10)
+parser.add_argument('--batch_size', type=int, choices=[8, 16, 32, 64], default=16)
+parser.add_argument('--dropout', type=int, choices=[0.2, 0.3, 0.4], default=0.2)
+parser.add_argument('--lr', type=float, choices=[1e-4, 1e-5, 1e-6], default=1e-6)
+parser.add_argument("-f", "--file", required=False) 
+args = parser.parse_args()
 
 class Net(nn.Module):
     def __init__(self, pretrained_model):
@@ -15,13 +29,13 @@ class Net(nn.Module):
         self.model = nn.Sequential(                                                     #torch.randn(1, 3, 224, 224) --> tensor com dimensão 1x3x224x224 
             model, 
             nn.Flatten(),                                                               #Aplana o tensor 
-            nn.Dropout(0.2),                                                            #Dropout é uma técnica que seleciona 'neurals' aleatoriamente e os ignora
+            nn.Dropout(args.dropout),                                                            #Dropout é uma técnica que seleciona 'neurals' aleatoriamente e os ignora
             nn.Linear(last_dimension, 512),                                                      
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(args.dropout),
             nn.Linear(512,256),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(args.dropout),
             nn.Linear(256, 4)
         )
 
@@ -36,7 +50,15 @@ class Net(nn.Module):
     
     def pred(self, pred):
         return torch.max(pred,1)
-        
     
-#n_labels = 4
-#Net(True, n_labels)
+    ## MÉTRICAS ##
+
+    def acc(self, y, yhat):                                                   
+        return metrics.accuracy_score(y, yhat)
+
+    def prec(self, y, yhat):
+        return metrics.precision_score(y, yhat, average='weighted')
+
+    def mae(self, y, yhat):
+        return metrics.mean_absolute_error(y, yhat)
+        
