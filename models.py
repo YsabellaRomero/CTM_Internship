@@ -12,17 +12,16 @@ parser = argparse.ArgumentParser()                                            #C
 parser.add_argument('--method', default='Net')
 parser.add_argument('--architecture', choices=['vgg16', 'googlenet'], default='vgg16') 
 parser.add_argument('--fold', type=int, choices=range(5), default=4)
-parser.add_argument('--epochs', type=int, default=10)
-parser.add_argument('--batch_size', type=int, choices=[8, 16, 32, 64], default=16)
-parser.add_argument('--dropout', type=int, choices=[0.2, 0.3, 0.4], default=0.2)
-parser.add_argument('--lr', type=float, choices=[1e-4, 1e-5, 1e-6], default=1e-6)
+parser.add_argument('--epochs', type=int, default=100)
+parser.add_argument('--batch_size', type=int, choices=[8, 16, 32, 64], default=32)
+parser.add_argument('--dropout', type=int, choices=[0.2, 0.3, 0.4], default=0.3)
+parser.add_argument('--lr', type=float, choices=[1e-4, 1e-5, 1e-6], default=1e-4)
 parser.add_argument("-f", "--file", required=False) 
 args = parser.parse_args()
 
 class Net(nn.Module):
     def __init__(self, pretrained_model):
         super().__init__()
-        #model = getattr(models, pretrained_model)(pretrained=True)
         model = models.vgg16(pretrained=True)                                           #Instanciar um modelo pré-treinado baixará seus pesos para um diretório de cache
         model = nn.Sequential(*list(model.children())[:-1])                             #Novo modelo criado através da lista com todas as camadas (à exceção da última) do modelo pré-treinado                            
         last_dimension = torch.flatten(model(torch.randn(1, 3, 224, 224))).shape[0]     #Dimensão da última camada do modelo     
@@ -57,7 +56,7 @@ class Net(nn.Module):
         return metrics.accuracy_score(y, yhat)
 
     def prec(self, y, yhat):
-        return metrics.precision_score(y, yhat, average='weighted')
+        return metrics.precision_score(y, yhat, average='weighted', zero_division=1)
 
     def mae(self, y, yhat):
         return metrics.mean_absolute_error(y, yhat)
