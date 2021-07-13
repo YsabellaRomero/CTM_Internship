@@ -44,7 +44,7 @@ def loadImages():
 inputs, labels = loadImages()
 inputs, labels = np.array(inputs), np.array(labels)          #transforma de lista para array
 
-skf=StratifiedKFold(n_splits=divs,shuffle=True);
+skf=StratifiedKFold(n_splits=divs,shuffle=True,random_state=1234);
 
 for tr, ts in skf.split(inputs,labels):
     data_dict.append({'train':(inputs[tr],labels[tr]),'test':(inputs[ts],labels[ts])})
