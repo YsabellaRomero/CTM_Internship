@@ -41,9 +41,3 @@ val_transforms = transforms.Compose([
 
 
 path = 'Pickle/data.p'
-
-#train_dataset = data('train', 4, path, aug_transforms)
-
-#for inputs, labels in train_dataset:
-#    print(inputs)
-  
